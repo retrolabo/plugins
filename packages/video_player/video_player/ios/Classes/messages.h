@@ -11,6 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class FLTInitializeMessage;
 @class FLTTextureMessage;
 @class FLTCreateMessage;
 @class FLTLoopingMessage;
@@ -18,6 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 @class FLTPlaybackSpeedMessage;
 @class FLTPositionMessage;
 @class FLTMixWithOthersMessage;
+
+@interface FLTInitializeMessage : NSObject
+@property(nonatomic, strong, nullable) NSNumber *maxCacheSize;
+@property(nonatomic, strong, nullable) NSNumber *maxCacheFileSize;
+@end
 
 @interface FLTTextureMessage : NSObject
 @property(nonatomic, strong, nullable) NSNumber *textureId;
@@ -29,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, nullable) NSString *packageName;
 @property(nonatomic, copy, nullable) NSString *formatHint;
 @property(nonatomic, strong, nullable) NSDictionary *httpHeaders;
+@property(nonatomic, strong, nullable) NSNumber *useCache;
 @end
 
 @interface FLTLoopingMessage : NSObject
@@ -56,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @protocol FLTVideoPlayerApi
-- (void)initialize:(FlutterError *_Nullable *_Nonnull)error;
+- (void)initialize:(FLTInitializeMessage *)input error:(FlutterError *_Nullable *_Nonnull)error;
 - (nullable FLTTextureMessage *)create:(FLTCreateMessage *)input
                                  error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)dispose:(FLTTextureMessage *)input error:(FlutterError *_Nullable *_Nonnull)error;

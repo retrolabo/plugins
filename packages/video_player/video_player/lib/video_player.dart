@@ -188,6 +188,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       : dataSourceType = DataSourceType.asset,
         formatHint = null,
         httpHeaders = const {},
+        useCache = null,
         super(VideoPlayerValue(duration: Duration.zero));
 
   /// Constructs a [VideoPlayerController] playing a video from obtained from
@@ -199,28 +200,41 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   /// the video format detection code.
   /// [httpHeaders] option allows to specify HTTP headers
   /// for the request to the [dataSource].
+  /// The [useCache] argument must be non-null. default is false.
   VideoPlayerController.network(
     this.dataSource, {
     this.formatHint,
     this.closedCaptionFile,
     this.videoPlayerOptions,
     this.httpHeaders = const {},
-  })  : dataSourceType = DataSourceType.network,
+    this.useCache = false
+  })  : assert(useCache != null),
+        dataSourceType = DataSourceType.network,
         package = null,
+        useCache = useCache,
         super(VideoPlayerValue(duration: Duration.zero));
 
   /// Constructs a [VideoPlayerController] playing a video from a file.
   ///
   /// This will load the file from the file-URI given by:
   /// `'file://${file.path}'`.
-  VideoPlayerController.file(File file,
-      {this.closedCaptionFile, this.videoPlayerOptions})
-      : dataSource = 'file://${file.path}',
+  VideoPlayerController.file(
+    File file, {
+    this.closedCaptionFile,
+    this.videoPlayerOptions,
+  })  : dataSource = 'file://${file.path}',
         dataSourceType = DataSourceType.file,
         package = null,
         formatHint = null,
         httpHeaders = const {},
+        useCache = null,
         super(VideoPlayerValue(duration: Duration.zero));
+
+  /// The maximum cache size to keep on disk in bytes.
+  static int _maxCacheSize = 100 * 1024 * 1024;
+
+  /// The maximum size of each individual file in bytes.
+  static int _maxCacheFileSize = 10 * 1024 * 1024;
 
   /// The URI to the video file. This will be in different formats depending on
   /// the [DataSourceType] of the original video.
@@ -242,6 +256,9 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   /// Provide additional configuration options (optional). Like setting the audio mode to mix
   final VideoPlayerOptions? videoPlayerOptions;
 
+  /// Use cache for this data source or not. Used only for network data source.
+  final bool useCache;
+
   /// Only set for [asset] videos. The package that the asset was loaded from.
   final String? package;
 
@@ -255,6 +272,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   ClosedCaptionFile? _closedCaptionFile;
   Timer? _timer;
   bool _isDisposed = false;
+  static Completer<void> _pluginInitializingCompleter;
   Completer<void>? _creatingCompleter;
   StreamSubscription<dynamic>? _eventSubscription;
   late _VideoAppLifeCycleObserver _lifeCycleObserver;
@@ -269,8 +287,30 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   @visibleForTesting
   int get textureId => _textureId;
 
+  /// Set the cache size in bytes. Default is maxSize of `100 * 1024 * 1024`
+  /// and maxFileSize of `10 * 1024 * 1024`.
+  ///
+  /// Cache used only for network data source.
+  ///
+  /// Throws StateError if you try to set the cache size twice. You can only set it once.
+  static void setCacheSize(int maxSize, int maxFileSize) {
+    assert(maxSize != null && maxSize > 0);
+    assert(maxFileSize != null && maxFileSize > 0);
+
+    if (_pluginInitializingCompleter != null) {
+      throw StateError(
+        "You can only set the VideoPlayerController cache size once.",
+      );
+    }
+
+    _maxCacheSize = maxSize;
+    _maxCacheFileSize = maxFileSize;
+  }
+
   /// Attempts to open the given [dataSource] and load metadata about the video.
   Future<void> initialize() async {
+    await _ensureVideoPluginInitialized();
+
     _lifeCycleObserver = _VideoAppLifeCycleObserver(this);
     _lifeCycleObserver.initialize();
     _creatingCompleter = Completer<void>();
@@ -290,6 +330,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
           uri: dataSource,
           formatHint: formatHint,
           httpHeaders: httpHeaders,
+          useCache: useCache,
         );
         break;
       case DataSourceType.file:
@@ -368,6 +409,19 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
         .videoEventsFor(_textureId)
         .listen(eventListener, onError: errorListener);
     return initializingCompleter.future;
+  }
+
+  Future<void> _ensureVideoPluginInitialized() async {
+    if (_pluginInitializingCompleter != null) {
+      return _pluginInitializingCompleter.future;
+    }
+
+    _pluginInitializingCompleter = Completer();
+
+    await VideoPlayerPlatform.instance.init(_maxCacheSize, _maxCacheFileSize);
+    _pluginInitializingCompleter.complete(null);
+
+    return _pluginInitializingCompleter.future;
   }
 
   @override

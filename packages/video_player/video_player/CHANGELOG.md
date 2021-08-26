@@ -198,7 +198,6 @@
 * Added support for cleaning up the plugin if used for add-to-app (Flutter
   v1.15.3 is required for that feature).
 
-
 ## 0.10.7
 
 * `VideoPlayerController` support for reading closed caption files.

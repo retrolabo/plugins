@@ -13,13 +13,14 @@ import 'package:video_player_platform_interface/video_player_platform_interface.
 
 class _ApiLogger implements TestHostVideoPlayerApi {
   final List<String> log = [];
-  TextureMessage? textureMessage;
-  CreateMessage? createMessage;
-  PositionMessage? positionMessage;
-  LoopingMessage? loopingMessage;
-  VolumeMessage? volumeMessage;
-  PlaybackSpeedMessage? playbackSpeedMessage;
-  MixWithOthersMessage? mixWithOthersMessage;
+  InitializeMessage initializeMessage;
+  TextureMessage textureMessage;
+  CreateMessage createMessage;
+  PositionMessage positionMessage;
+  LoopingMessage loopingMessage;
+  VolumeMessage volumeMessage;
+  PlaybackSpeedMessage playbackSpeedMessage;
+  MixWithOthersMessage mixWithOthersMessage;
 
   @override
   TextureMessage create(CreateMessage arg) {
@@ -35,8 +36,9 @@ class _ApiLogger implements TestHostVideoPlayerApi {
   }
 
   @override
-  void initialize() {
+  void initialize(InitializeMessage arg) {
     log.add('init');
+    initializeMessage = arg;
   }
 
   @override
@@ -109,11 +111,13 @@ void main() {
     });
 
     test('init', () async {
-      await player.init();
+      await player.init(100, 10);
       expect(
         log.log.last,
         'init',
       );
+      expect(log.initializeMessage.maxCacheSize, 100);
+      expect(log.initializeMessage.maxCacheFileSize, 10);
     });
 
     test('dispose', () async {
@@ -146,6 +150,7 @@ void main() {
       expect(log.createMessage?.packageName, null);
       expect(log.createMessage?.formatHint, 'dash');
       expect(log.createMessage?.httpHeaders, {});
+      expect(log.createMessage?.useCache, false);
       expect(textureId, 3);
     });
 
@@ -161,7 +166,73 @@ void main() {
       expect(log.createMessage?.packageName, null);
       expect(log.createMessage?.formatHint, null);
       expect(log.createMessage?.httpHeaders, {'Authorization': 'Bearer token'});
+      expect(log.createMessage?.useCache, false);
       expect(textureId, 3);
+    });
+
+    group('create with network', () {
+      test('with cache', () async {
+        final int textureId = await player.create(
+          DataSource(
+            sourceType: DataSourceType.network,
+            uri: 'someUri',
+            useCache: true,
+          ),
+        );
+
+        expect(log.log.last, 'create');
+        expect(log.createMessage.uri, 'someUri');
+        expect(log.createMessage.formatHint, null);
+        expect(log.createMessage.useCache, true);
+        expect(textureId, 3);
+      });
+
+      test('without cache', () async {
+        final int textureId = await player.create(
+          DataSource(
+            sourceType: DataSourceType.network,
+            uri: 'someUri',
+            useCache: false,
+          ),
+        );
+
+        expect(log.log.last, 'create');
+        expect(log.createMessage.uri, 'someUri');
+        expect(log.createMessage.formatHint, null);
+        expect(log.createMessage.useCache, false);
+        expect(textureId, 3);
+      });
+
+      test('without cache by default', () async {
+        final int textureId = await player.create(
+          DataSource(
+            sourceType: DataSourceType.network,
+            uri: 'someUri',
+          ),
+        );
+
+        expect(log.log.last, 'create');
+        expect(log.createMessage.uri, 'someUri');
+        expect(log.createMessage.formatHint, null);
+        expect(log.createMessage.useCache, false);
+        expect(textureId, 3);
+      });
+
+      test('with hint', () async {
+        final int textureId = await player.create(
+          DataSource(
+            sourceType: DataSourceType.network,
+            uri: 'someUri',
+            formatHint: VideoFormat.dash,
+          ),
+        );
+
+        expect(log.log.last, 'create');
+        expect(log.createMessage.uri, 'someUri');
+        expect(log.createMessage.formatHint, 'dash');
+        expect(log.createMessage.useCache, false);
+        expect(textureId, 3);
+      });
     });
 
     test('create with file', () async {

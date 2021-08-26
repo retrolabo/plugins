@@ -1,3 +1,7 @@
+## 4.1.x
+
+* Add caching functionality to videos from network sources.
+
 ## 4.1.0
 
 * Add `httpHeaders` to `DataSource`

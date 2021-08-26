@@ -13,6 +13,7 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugins.videoplayer.Messages.CreateMessage;
+import io.flutter.plugins.videoplayer.Messages.InitializeMessage;
 import io.flutter.plugins.videoplayer.Messages.LoopingMessage;
 import io.flutter.plugins.videoplayer.Messages.MixWithOthersMessage;
 import io.flutter.plugins.videoplayer.Messages.PlaybackSpeedMessage;
@@ -32,6 +33,9 @@ public class VideoPlayerPlugin implements FlutterPlugin, VideoPlayerApi {
   private final LongSparseArray<VideoPlayer> videoPlayers = new LongSparseArray<>();
   private FlutterState flutterState;
   private VideoPlayerOptions options = new VideoPlayerOptions();
+
+  private long maxCacheSize;
+  private long maxCacheFileSize;
 
   /** Register this with the v2 embedding for the plugin to respond to lifecycle callbacks. */
   public VideoPlayerPlugin() {}
@@ -112,8 +116,10 @@ public class VideoPlayerPlugin implements FlutterPlugin, VideoPlayerApi {
     disposeAllPlayers();
   }
 
-  public void initialize() {
+  public void initialize(InitializeMessage arg) {
     disposeAllPlayers();
+    maxCacheSize = arg.getMaxCacheSize();
+    maxCacheFileSize = arg.getMaxCacheFileSize();
   }
 
   public TextureMessage create(CreateMessage arg) {
@@ -139,8 +145,11 @@ public class VideoPlayerPlugin implements FlutterPlugin, VideoPlayerApi {
               handle,
               "asset:///" + assetLookupKey,
               null,
-              null,
-              options);
+              options,
+              maxCacheSize,
+              maxCacheFileSize,
+              false);
+      videoPlayers.put(handle.id(), player);
     } else {
       @SuppressWarnings("unchecked")
       Map<String, String> httpHeaders = arg.getHttpHeaders();
@@ -151,8 +160,11 @@ public class VideoPlayerPlugin implements FlutterPlugin, VideoPlayerApi {
               handle,
               arg.getUri(),
               arg.getFormatHint(),
-              httpHeaders,
-              options);
+              options,
+              maxCacheSize,
+              maxCacheFileSize,
+              arg.getUseCache());
+      videoPlayers.put(handle.id(), player);
     }
     videoPlayers.put(handle.id(), player);
 

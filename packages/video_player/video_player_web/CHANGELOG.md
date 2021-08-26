@@ -1,3 +1,7 @@
+## 2.0.x
+
+- bump video_player_platform_interface to 2.3.0
+
 ## 2.0.2
 
 * Updated installation instructions in README.

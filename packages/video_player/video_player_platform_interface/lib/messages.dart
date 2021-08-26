@@ -11,6 +11,29 @@ import 'dart:typed_data' show Uint8List, Int32List, Int64List, Float64List;
 
 import 'package:flutter/services.dart';
 
+class InitializeMessage {
+  int maxCacheSize;
+  int maxCacheFileSize;
+  // ignore: unused_element
+  Map<dynamic, dynamic> _toMap() {
+    final Map<dynamic, dynamic> pigeonMap = <dynamic, dynamic>{};
+    pigeonMap['maxCacheSize'] = maxCacheSize;
+    pigeonMap['maxCacheFileSize'] = maxCacheFileSize;
+    return pigeonMap;
+  }
+
+  // ignore: unused_element
+  static InitializeMessage _fromMap(Map<dynamic, dynamic> pigeonMap) {
+    if (pigeonMap == null) {
+      return null;
+    }
+    final InitializeMessage result = InitializeMessage();
+    result.maxCacheSize = pigeonMap['maxCacheSize'];
+    result.maxCacheFileSize = pigeonMap['maxCacheFileSize'];
+    return result;
+  }
+}
+
 class TextureMessage {
   int? textureId;
 
@@ -27,6 +50,7 @@ class TextureMessage {
 }
 
 class CreateMessage {
+<<<<<<< HEAD
   String? asset;
   String? uri;
   String? packageName;
@@ -35,10 +59,21 @@ class CreateMessage {
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
+=======
+  String asset;
+  String uri;
+  String packageName;
+  String formatHint;
+  bool useCache;
+  // ignore: unused_element
+  Map<dynamic, dynamic> _toMap() {
+    final Map<dynamic, dynamic> pigeonMap = <dynamic, dynamic>{};
+>>>>>>> cache/caching
     pigeonMap['asset'] = asset;
     pigeonMap['uri'] = uri;
     pigeonMap['packageName'] = packageName;
     pigeonMap['formatHint'] = formatHint;
+<<<<<<< HEAD
     pigeonMap['httpHeaders'] = httpHeaders;
     return pigeonMap;
   }
@@ -51,6 +86,24 @@ class CreateMessage {
       ..packageName = pigeonMap['packageName'] as String?
       ..formatHint = pigeonMap['formatHint'] as String?
       ..httpHeaders = pigeonMap['httpHeaders'] as Map<Object?, Object?>?;
+=======
+    pigeonMap['useCache'] = useCache;
+    return pigeonMap;
+  }
+
+  // ignore: unused_element
+  static CreateMessage _fromMap(Map<dynamic, dynamic> pigeonMap) {
+    if (pigeonMap == null) {
+      return null;
+    }
+    final CreateMessage result = CreateMessage();
+    result.asset = pigeonMap['asset'];
+    result.uri = pigeonMap['uri'];
+    result.packageName = pigeonMap['packageName'];
+    result.formatHint = pigeonMap['formatHint'];
+    result.useCache = pigeonMap['useCache'];
+    return result;
+>>>>>>> cache/caching
   }
 }
 
@@ -147,11 +200,20 @@ class MixWithOthersMessage {
 }
 
 class VideoPlayerApi {
+<<<<<<< HEAD
   Future<void> initialize() async {
     const BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.VideoPlayerApi.initialize', StandardMessageCodec());
     final Map<Object?, Object?>? replyMap =
         await channel.send(null) as Map<Object?, Object?>?;
+=======
+  Future<void> initialize(InitializeMessage arg) async {
+    final Map<dynamic, dynamic> requestMap = arg._toMap();
+    const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+        'dev.flutter.pigeon.VideoPlayerApi.initialize', StandardMessageCodec());
+
+    final Map<dynamic, dynamic> replyMap = await channel.send(requestMap);
+>>>>>>> cache/caching
     if (replyMap == null) {
       throw PlatformException(
         code: 'channel-error',
@@ -423,3 +485,150 @@ class VideoPlayerApi {
     }
   }
 }
+<<<<<<< HEAD
+=======
+
+abstract class TestHostVideoPlayerApi {
+  void initialize(InitializeMessage arg);
+  TextureMessage create(CreateMessage arg);
+  void dispose(TextureMessage arg);
+  void setLooping(LoopingMessage arg);
+  void setVolume(VolumeMessage arg);
+  void setPlaybackSpeed(PlaybackSpeedMessage arg);
+  void play(TextureMessage arg);
+  PositionMessage position(TextureMessage arg);
+  void seekTo(PositionMessage arg);
+  void pause(TextureMessage arg);
+  void setMixWithOthers(MixWithOthersMessage arg);
+  static void setup(TestHostVideoPlayerApi api) {
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.initialize',
+          StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final InitializeMessage input = InitializeMessage._fromMap(mapMessage);
+        api.initialize(input);
+        return <dynamic, dynamic>{};
+      });
+    }
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.create', StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final CreateMessage input = CreateMessage._fromMap(mapMessage);
+        final TextureMessage output = api.create(input);
+        return <dynamic, dynamic>{'result': output._toMap()};
+      });
+    }
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.dispose', StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final TextureMessage input = TextureMessage._fromMap(mapMessage);
+        api.dispose(input);
+        return <dynamic, dynamic>{};
+      });
+    }
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.setLooping',
+          StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final LoopingMessage input = LoopingMessage._fromMap(mapMessage);
+        api.setLooping(input);
+        return <dynamic, dynamic>{};
+      });
+    }
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.setVolume',
+          StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final VolumeMessage input = VolumeMessage._fromMap(mapMessage);
+        api.setVolume(input);
+        return <dynamic, dynamic>{};
+      });
+    }
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.setPlaybackSpeed',
+          StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final PlaybackSpeedMessage input =
+            PlaybackSpeedMessage._fromMap(mapMessage);
+        api.setPlaybackSpeed(input);
+        return <dynamic, dynamic>{};
+      });
+    }
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.play', StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final TextureMessage input = TextureMessage._fromMap(mapMessage);
+        api.play(input);
+        return <dynamic, dynamic>{};
+      });
+    }
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.position', StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final TextureMessage input = TextureMessage._fromMap(mapMessage);
+        final PositionMessage output = api.position(input);
+        return <dynamic, dynamic>{'result': output._toMap()};
+      });
+    }
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.seekTo', StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final PositionMessage input = PositionMessage._fromMap(mapMessage);
+        api.seekTo(input);
+        return <dynamic, dynamic>{};
+      });
+    }
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.pause', StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final TextureMessage input = TextureMessage._fromMap(mapMessage);
+        api.pause(input);
+        return <dynamic, dynamic>{};
+      });
+    }
+    {
+      const BasicMessageChannel<dynamic> channel = BasicMessageChannel<dynamic>(
+          'dev.flutter.pigeon.VideoPlayerApi.setMixWithOthers',
+          StandardMessageCodec());
+      channel.setMockMessageHandler((dynamic message) async {
+        final Map<dynamic, dynamic> mapMessage =
+            message as Map<dynamic, dynamic>;
+        final MixWithOthersMessage input =
+            MixWithOthersMessage._fromMap(mapMessage);
+        api.setMixWithOthers(input);
+        return <dynamic, dynamic>{};
+      });
+    }
+  }
+}
+>>>>>>> cache/caching
