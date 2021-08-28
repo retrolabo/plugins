@@ -571,7 +571,7 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
       player = [[FLTVideoPlayer alloc] initWithURL:[NSURL URLWithString:input.uri]
                                        frameUpdater:frameUpdater
                                        httpHeaders:nil
-d                                       ];
+                                       ];
     }
     return [self onPlayerSetup:player frameUpdater:frameUpdater];
   } else {
