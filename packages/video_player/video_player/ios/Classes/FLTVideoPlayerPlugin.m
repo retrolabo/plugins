@@ -43,7 +43,7 @@
 @property(nonatomic) bool isLooping;
 @property(nonatomic, readonly) bool isInitialized;
 - (instancetype)initWithURL:(NSURL*)url
-               frameUpdater:(FLTFrameUpdater*)frameUpdater
+                frameUpdater:(FLTFrameUpdater*)frameUpdater
                 httpHeaders:(NSDictionary<NSString*, NSString*>*)headers;
 - (void)play;
 - (void)pause;
@@ -172,7 +172,7 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
 }
 
 - (instancetype)initWithURL:(NSURL*)url
-               frameUpdater:(FLTFrameUpdater*)frameUpdater
+                frameUpdater:(FLTFrameUpdater*)frameUpdater
                 httpHeaders:(NSDictionary<NSString*, NSString*>*)headers
                 enableCache:(BOOL)enableCache  {
   NSDictionary<NSString*, id>* options = nil;
@@ -564,11 +564,14 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
                                                                  .alphanumericCharacterSet];
 
       player = [[FLTVideoPlayer alloc] initWithURL:[NSURL URLWithString:escapedURL]
-                                      frameUpdater:frameUpdater
+                                       frameUpdater:frameUpdater
+                                       httpHeaders:nil
                                        enableCache:enableCache];
     } else {
       player = [[FLTVideoPlayer alloc] initWithURL:[NSURL URLWithString:input.uri]
-                                      frameUpdater:frameUpdater];
+                                       frameUpdater:frameUpdater
+                                       httpHeaders:nil
+d                                       ];
     }
     return [self onPlayerSetup:player frameUpdater:frameUpdater];
   } else {
