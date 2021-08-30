@@ -12,25 +12,21 @@ import 'dart:typed_data' show Uint8List, Int32List, Int64List, Float64List;
 import 'package:flutter/services.dart';
 
 class InitializeMessage {
-  int maxCacheSize;
-  int maxCacheFileSize;
-  // ignore: unused_element
-  Map<dynamic, dynamic> _toMap() {
-    final Map<dynamic, dynamic> pigeonMap = <dynamic, dynamic>{};
+  int? maxCacheSize;
+  int? maxCacheFileSize;
+
+  Object encode() {
+    final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
     pigeonMap['maxCacheSize'] = maxCacheSize;
     pigeonMap['maxCacheFileSize'] = maxCacheFileSize;
     return pigeonMap;
   }
 
-  // ignore: unused_element
-  static InitializeMessage _fromMap(Map<dynamic, dynamic> pigeonMap) {
-    if (pigeonMap == null) {
-      return null;
-    }
-    final InitializeMessage result = InitializeMessage();
-    result.maxCacheSize = pigeonMap['maxCacheSize'];
-    result.maxCacheFileSize = pigeonMap['maxCacheFileSize'];
-    return result;
+  static InitializeMessage decode(Object message) {
+    final Map<Object?, Object?> pigeonMap = message as Map<Object?, Object?>;
+    return InitializeMessage()
+      ..maxCacheSize = pigeonMap['maxCacheSize'] as int?
+      ..maxCacheSize = pigeonMap['maxCacheSize'] as int?;
   }
 }
 
@@ -50,31 +46,21 @@ class TextureMessage {
 }
 
 class CreateMessage {
-<<<<<<< HEAD
   String? asset;
   String? uri;
   String? packageName;
   String? formatHint;
   Map<Object?, Object?>? httpHeaders;
+  bool? useCache;
 
   Object encode() {
     final Map<Object?, Object?> pigeonMap = <Object?, Object?>{};
-=======
-  String asset;
-  String uri;
-  String packageName;
-  String formatHint;
-  bool useCache;
-  // ignore: unused_element
-  Map<dynamic, dynamic> _toMap() {
-    final Map<dynamic, dynamic> pigeonMap = <dynamic, dynamic>{};
->>>>>>> cache/caching
     pigeonMap['asset'] = asset;
     pigeonMap['uri'] = uri;
     pigeonMap['packageName'] = packageName;
     pigeonMap['formatHint'] = formatHint;
-<<<<<<< HEAD
     pigeonMap['httpHeaders'] = httpHeaders;
+    pigeonMap['useCache'] = useCache;
     return pigeonMap;
   }
 
@@ -85,25 +71,8 @@ class CreateMessage {
       ..uri = pigeonMap['uri'] as String?
       ..packageName = pigeonMap['packageName'] as String?
       ..formatHint = pigeonMap['formatHint'] as String?
-      ..httpHeaders = pigeonMap['httpHeaders'] as Map<Object?, Object?>?;
-=======
-    pigeonMap['useCache'] = useCache;
-    return pigeonMap;
-  }
-
-  // ignore: unused_element
-  static CreateMessage _fromMap(Map<dynamic, dynamic> pigeonMap) {
-    if (pigeonMap == null) {
-      return null;
-    }
-    final CreateMessage result = CreateMessage();
-    result.asset = pigeonMap['asset'];
-    result.uri = pigeonMap['uri'];
-    result.packageName = pigeonMap['packageName'];
-    result.formatHint = pigeonMap['formatHint'];
-    result.useCache = pigeonMap['useCache'];
-    return result;
->>>>>>> cache/caching
+      ..httpHeaders = pigeonMap['httpHeaders'] as Map<Object?, Object?>?
+      ..useCache = pigeonMap['useCache'] as bool?;
   }
 }
 
